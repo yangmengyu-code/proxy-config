@@ -1,0 +1,20 @@
+listen: :443
+
+# acme:
+#   domains:
+#     - japan.qqwllkmn.qzz.io
+#   email: 2168526598@qq.com
+
+tls:
+  cert: /etc/hysteria/certs/fullchain.pem
+  key: /etc/hysteria/certs/privkey.pem
+
+auth:
+  type: password
+  password: m123456
+
+masquerade:
+  type: proxy
+  proxy:
+    url: https://www.cctv.com/
+    rewriteHost: true

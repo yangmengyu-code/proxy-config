@@ -1,0 +1,133 @@
+mixed-port: 7890
+allow-lan: true
+bind-address: "*"
+mode: rule
+log-level: info
+external-controller: "127.0.0.1:9090"
+secret: "123456"
+# dns:
+#     enable: true
+#     ipv6: false
+#     default-nameserver: [223.5.5.5, 119.29.29.29]
+#     enhanced-mode: fake-ip
+#     fake-ip-range: 198.18.0.1/16
+#     use-hosts: true
+#     nameserver:
+#         ["https://doh.pub/dns-query", "https://dns.alidns.com/dns-query"]
+#     fallback:
+#         [
+#             "https://doh.dns.sb/dns-query",
+#             "https://dns.cloudflare.com/dns-query",
+#             "https://dns.twnic.tw/dns-query",
+#             "tls://8.8.4.4:853",
+#         ]
+#     fallback-filter: { geoip: true, ipcidr: [240.0.0.0/4, 0.0.0.0/32] }
+
+proxies:
+    - {
+          name: "Japan | ss",
+          type: ss,
+          server: 202.182.104.239,
+          port: 8388,
+          cipher: chacha20-ietf-poly1305,
+          password: "m123456",
+          udp: true,
+      }
+    - {
+          name: "Japan | socks5",
+          type: socks5,
+          server: 202.182.104.239,
+          port: 8443,
+          tls: true,
+          skip-cert-verify: true,
+          sni: researchworld.com,
+          username: root,
+          password: m123456,
+          udp: true,
+      }
+    - {
+          name: "Japan | http",
+          type: http,
+          server: 202.182.104.239,
+          port: 5443,
+          tls: true,
+          skip-cert-verify: true,
+          sni: researchworld.com,
+          username: root,
+          password: m123456
+      }
+    - {
+          name: "Japan | trojan",
+          type: trojan,
+          server: japan.qqwllkmn.qzz.io,
+          port: 7443,
+          password: "m123456",
+          udp: true,
+          alpn: [h2,http/1.1],
+    }
+    - {
+          name: "Japan | vmess",
+          type: vmess,
+          server: 202.182.104.239,
+          port: 1085,
+          uuid: 4d087a5c-f5f0-4020-68da-03713f6c7a1e,
+          alterId: 0,
+          cipher: auto,
+          udp: true,
+    }
+    - {
+          name: "Japan | vless",
+          type: vless,
+          server: 202.182.104.239,
+          port: 1086,
+          uuid: d1b05c05-2010-f4d6-c347-12f36bf62abb,
+          udp: true,
+          network: ws,
+          ws-opts: {
+             path: /ws
+          }
+    }
+
+proxy-groups:
+    - { name: vps, type: select, proxies: [自动选择, 故障转移, 'Japan | ss', 'Japan | socks5', 'Japan | http', 'Japan | trojan', 'Japan | vmess', 'Japan | vless'] }
+    - { name: 自动选择, type: url-test, proxies: ['Japan | ss', 'Japan | socks5', 'Japan | http', 'Japan | trojan', 'Japan | vmess', 'Japan | vless'], url: 'http://www.gstatic.com/generate_204', interval: 86400 }
+    - { name: 故障转移, type: fallback, proxies: ['Japan | ss', 'Japan | socks5', 'Japan | http', 'Japan | trojan', 'Japan | vmess', 'Japan | vless'], url: 'http://www.gstatic.com/generate_204', interval: 7200 }
+rules:
+    - 'IP-CIDR,91.108.4.0/22,vps,no-resolve'
+    - 'IP-CIDR,91.108.8.0/21,vps,no-resolve'
+    - 'IP-CIDR,91.108.16.0/22,vps,no-resolve'
+    - 'IP-CIDR,91.108.56.0/22,vps,no-resolve'
+    - 'IP-CIDR,149.154.160.0/20,vps,no-resolve'
+    - 'IP-CIDR6,2001:67c:4e8::/48,vps,no-resolve'
+    - 'IP-CIDR6,2001:b28:f23d::/48,vps,no-resolve'
+    - 'IP-CIDR6,2001:b28:f23f::/48,vps,no-resolve'
+    - 'IP-CIDR,120.232.181.162/32,vps,no-resolve'
+    - 'IP-CIDR,120.241.147.226/32,vps,no-resolve'
+    - 'IP-CIDR,120.253.253.226/32,vps,no-resolve'
+    - 'IP-CIDR,120.253.255.162/32,vps,no-resolve'
+    - 'IP-CIDR,120.253.255.34/32,vps,no-resolve'
+    - 'IP-CIDR,120.253.255.98/32,vps,no-resolve'
+    - 'IP-CIDR,180.163.150.162/32,vps,no-resolve'
+    - 'IP-CIDR,180.163.150.34/32,vps,no-resolve'
+    - 'IP-CIDR,180.163.151.162/32,vps,no-resolve'
+    - 'IP-CIDR,180.163.151.34/32,vps,no-resolve'
+    - 'IP-CIDR,203.208.39.0/24,vps,no-resolve'
+    - 'IP-CIDR,203.208.40.0/24,vps,no-resolve'
+    - 'IP-CIDR,203.208.41.0/24,vps,no-resolve'
+    - 'IP-CIDR,203.208.43.0/24,vps,no-resolve'
+    - 'IP-CIDR,203.208.50.0/24,vps,no-resolve'
+    - 'IP-CIDR,220.181.174.162/32,vps,no-resolve'
+    - 'IP-CIDR,220.181.174.226/32,vps,no-resolve'
+    - 'IP-CIDR,220.181.174.34/32,vps,no-resolve'
+    - 'DOMAIN,injections.adguard.org,DIRECT'
+    - 'DOMAIN,local.adguard.org,DIRECT'
+    - 'DOMAIN-SUFFIX,local,DIRECT'
+    - 'IP-CIDR,127.0.0.0/8,DIRECT'
+    - 'IP-CIDR,172.16.0.0/12,DIRECT'
+    - 'IP-CIDR,192.168.0.0/16,DIRECT'
+    - 'IP-CIDR,10.0.0.0/8,DIRECT'
+    - 'IP-CIDR,17.0.0.0/8,DIRECT'
+    - 'IP-CIDR,100.64.0.0/10,DIRECT'
+    - 'IP-CIDR,224.0.0.0/4,DIRECT'
+    - 'IP-CIDR6,fe80::/10,DIRECT'
+    - 'MATCH,vps'
